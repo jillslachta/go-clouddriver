@@ -5,4 +5,4 @@ clouddriver.db
 .idea/
 .DS_Store
 vendor/
-.vscode/
+.vscode//internal/artifact/test/credentials/generated-*

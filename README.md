@@ -17,8 +17,8 @@ Go Clouddriver is _not_ an API complete implementation of Clouddriver OSS and on
 
 ### Prerequisites
 
-- [Go](https://go.dev/doc/install) 1.22 or newer
-- [golangci-lint](https://golangci-lint.run/welcome/install/) v1.58 (the version CI uses), needed by `make run` and `make lint`
+- [Go](https://go.dev/doc/install) 1.26 or newer
+- [golangci-lint](https://golangci-lint.run/welcome/install/) v2.14 (the version CI uses), needed by `make run` and `make lint`
 - Ginkgo, the test runner. Install it from the root directory with
 
 ```bash
@@ -35,7 +35,7 @@ Run from the root directory
 make test
 ```
 
-`make test` points `GOOGLE_APPLICATION_CREDENTIALS` at the fake key file in `test/credentials` so the artifact tests can run without real Google credentials.
+The artifact tests generate a throwaway Google service account key each run (from the template in `internal/artifact/test/credentials`), so they run without real Google credentials and no private key is committed.
 
 ### Building
 
