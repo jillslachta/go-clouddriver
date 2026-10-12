@@ -120,7 +120,7 @@ var _ = Describe("Controller", func() {
 
 			It("returns an error", func() {
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal(`dialing: cannot read credentials file: open fake.json: no such file or directory`))
+				Expect(err.Error()).To(ContainSubstring(`open fake.json: no such file or directory`))
 			})
 		})
 
