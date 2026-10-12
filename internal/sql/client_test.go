@@ -49,7 +49,7 @@ var _ = Describe("Sql", func() {
 			"`token_provider` varchar\\(128\\) NOT NULL DEFAULT 'google'," +
 			"`namespace` varchar\\(253\\)," +
 			"PRIMARY KEY \\(`name`\\)" +
-			"\\)$").
+			"\\) DEFAULT CHARSET=utf8mb3$").
 			WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectExec("(?i)^CREATE TABLE `kubernetes_resources` " +
 			"\\(`account_name` varchar\\(256\\)," +
@@ -67,28 +67,28 @@ var _ = Describe("Sql", func() {
 			"`spinnaker_app` varchar\\(256\\)," +
 			"`cluster` varchar\\(256\\)," +
 			"PRIMARY KEY \\(`id`\\)," +
-			"INDEX `.*").WillReturnResult(sqlmock.NewResult(1, 1))
+			"INDEX `.*\\) DEFAULT CHARSET=utf8mb3$").WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectExec("CREATE TABLE `kubernetes_providers_namespaces` " +
 			"\\(`account_name` varchar\\(256\\)," +
 			"`namespace` varchar\\(256\\)," +
 			"UNIQUE INDEX `account_name_namespace_idx` \\(`account_name`,`namespace`\\)" +
-			"\\)$").
+			"\\) DEFAULT CHARSET=utf8mb3$").
 			WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectExec("(?i)^CREATE TABLE `provider_read_permissions` " +
 			"\\(`id`\\ varchar\\(256\\)," +
 			"`account_name` varchar\\(256\\)," +
 			"`read_group` varchar\\(256\\)," +
 			"PRIMARY KEY \\(`id`\\)," +
-			"INDEX `account_name_idx` \\(`account_name`\\)" +
-			"\\)$").
+			"INDEX `provider_read_permissions_account_name_idx` \\(`account_name`\\)" +
+			"\\) DEFAULT CHARSET=utf8mb3$").
 			WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectExec("(?i)^CREATE TABLE `provider_write_permissions` " +
 			"\\(`id`\\ varchar\\(256\\)," +
 			"`account_name` varchar\\(256\\)," +
 			"`write_group` varchar\\(256\\)," +
 			"PRIMARY KEY \\(`id`\\)," +
-			"INDEX `account_name_idx` \\(`account_name`\\)" +
-			"\\)$").
+			"INDEX `provider_write_permissions_account_name_idx` \\(`account_name`\\)" +
+			"\\) DEFAULT CHARSET=utf8mb3$").
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
 		err = c.Connect()

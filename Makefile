@@ -1,3 +1,5 @@
+GOOGLE_APPLICATION_CREDENTIALS ?= test/credentials/test-keyfile.json
+
 default: all
 
 all: clean lint build test
@@ -16,11 +18,10 @@ run: clean lint build test
 	./clouddriver
 
 test:
-	ginkgo -r
+	GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) ginkgo -r
 
 tools:
-	go get github.com/onsi/ginkgo/v2/ginkgo
-	go get github.com/onsi/gomega/...
+	go install github.com/onsi/ginkgo/v2/ginkgo
 
 vendor:
 	go mod vendor
