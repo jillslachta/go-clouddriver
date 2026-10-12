@@ -15,13 +15,27 @@ Go Clouddriver is _not_ an API complete implementation of Clouddriver OSS and on
 
 ## Getting Started
 
+### Prerequisites
+
+- [Go](https://go.dev/doc/install) 1.22 or newer
+- [golangci-lint](https://golangci-lint.run/welcome/install/) v1.58 (the version CI uses), needed by `make run` and `make lint`
+- Ginkgo, the test runner. Install it from the root directory with
+
+```bash
+make tools
+```
+
+`make tools` installs `ginkgo` into `$(go env GOPATH)/bin`, so make sure that directory is on your `PATH`.
+
 ### Testing
 
 Run from the root directory
 
 ```bash
-make tools test
+make test
 ```
+
+`make test` points `GOOGLE_APPLICATION_CREDENTIALS` at the fake key file in `test/credentials` so the artifact tests can run without real Google credentials.
 
 ### Building
 
@@ -41,10 +55,28 @@ make build
 export ARCADE_API_KEY=test
 ```
 
-3. Run Go Clouddriver.
+3. Run Go Clouddriver. `make run` lints, builds and tests before starting the server.
 
 ```bash
 make run
+```
+
+By default Go Clouddriver creates a local SQLite database, `clouddriver.db`, in the directory it is started from. No setup is needed.
+
+To use MySQL instead, set `DB_HOST`, `DB_NAME`, `DB_USER` and `DB_PASS` (all four are required). An empty database is enough. Go Clouddriver creates its tables on start-up, and creates them as `utf8mb3`, so a MySQL 8 database with the default `utf8mb4` character set works. For example, with Docker:
+
+```bash
+docker run -d --name clouddriver-mysql -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=clouddriver mysql:8.0
+
+export DB_HOST=127.0.0.1:3306 DB_NAME=clouddriver DB_USER=root DB_PASS=password
+make run
+```
+
+Check that the server is up:
+
+```bash
+curl localhost:7002/health
 ```
 
 4. Create your first Kubernetes provider! Go Clouddriver runs on port 7002, so you'll make a POST to `localhost:7002/v1/kubernetes/providers`.
@@ -129,8 +161,15 @@ CREATE INDEX task_id_idx ON kubernetes_resources(task_id);
 Finally, a couple of indexes on the provider read/write permissions tables to help the Credentials API and any queries to select providers from the database.
 
 ```sql
-CREATE INDEX account_name_idx ON provider_read_permissions(account_name);
-CREATE INDEX account_name_idx ON provider_write_permissions(account_name);
+CREATE INDEX provider_read_permissions_account_name_idx ON provider_read_permissions(account_name);
+CREATE INDEX provider_write_permissions_account_name_idx ON provider_write_permissions(account_name);
+```
+
+Older versions named both of these indexes `account_name_idx`. On an existing MySQL database, Go Clouddriver creates the new indexes on start-up and leaves the old ones in place. Once the new indexes exist, you can drop the old ones:
+
+```sql
+DROP INDEX account_name_idx ON provider_read_permissions;
+DROP INDEX account_name_idx ON provider_write_permissions;
 ```
 
 #### SQL Cleanup

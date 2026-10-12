@@ -15,6 +15,10 @@ import (
 const (
 	maxOpenConns    = 5
 	connMaxLifetime = time.Second * 30
+	// MySQL 8 defaults new tables to utf8mb4, which makes the composite index on
+	// kubernetes_resources exceed InnoDB's 3072-byte key limit. Create tables in
+	// utf8mb3 to match the connection charset (charset=utf8 in the DSN).
+	mysqlTableOptions = " DEFAULT CHARSET=utf8mb3"
 )
 
 //go:generate counterfeiter . Client
@@ -60,7 +64,12 @@ func (c *client) Connect() error {
 		return fmt.Errorf("error opening connection to DB: %w", err)
 	}
 
-	err = db.AutoMigrate(
+	migrator := db
+	if db.Dialector.Name() == "mysql" {
+		migrator = db.Set("gorm:table_options", mysqlTableOptions)
+	}
+
+	err = migrator.AutoMigrate(
 		&kubernetes.Provider{},
 		&kubernetes.Resource{},
 		&kubernetes.ProviderNamespaces{},
